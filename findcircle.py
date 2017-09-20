@@ -17,7 +17,7 @@ def circleposition(cap,transform):
         if circles is not None:
             circle = circles[0][0]
             print circle
-            if np.absolute(circle[0]-l[2][0]) > 5 or np.absolute(circle[1]-l[2][1]) > 5:
+            if np.absolute(circle[0]-l[2][0]) > 35 or np.absolute(circle[1]-l[2][1]) > 35:
                 l.append([int(circle[0]),int(circle[1])])
                 l=l[1:]
             else:

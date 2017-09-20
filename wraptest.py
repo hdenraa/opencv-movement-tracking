@@ -66,6 +66,7 @@ dest = np.array([ [0,0],[1299,0],[1299,699],[0,699] ],np.float32)
 
 warp = kallibrer(cap,dest)
 dircount = 0
+hole = ""
 
 myfont = pygame.font.SysFont("monospace", 30,True)
 
@@ -76,6 +77,13 @@ for puck in puck_movement(lambda:circleposition(cap,warp)):
     sprite_list.update(puck[0][2][0],puck[0][2][1])
     if puck[1]:
         dircount = dircount + 1
+
+    if (puck[0][2][0] > 660 and puck[0][1][0] < 640) or (puck[0][2][0] < 640 and puck[0][1][0] > 660):
+        if puck[0][2][1] > 350:
+            hole = "Red"
+        else:
+            hole = "Blue"
+        dircount = 0
         
     screen.fill(WHITE)
     sprite_list.draw(screen)
@@ -88,8 +96,10 @@ for puck in puck_movement(lambda:circleposition(cap,warp)):
     # Go ahead and update the screen with what we've drawn.
     
     Score = myfont.render("Count "+ str(dircount), 1, (0,50,0))
+    Hole = myfont.render("Hole "+ str(hole), 1, (0,50,0))
             
     screen.blit(Score,(10,10))
+    screen.blit(Hole,(10,30))
     
     pygame.display.flip()
     
