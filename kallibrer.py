@@ -24,7 +24,11 @@ def kallibrer(cap,dest):
     global ffframe
     global clickcount
     
-    success, frame = cap.read()
+    if type(cap) is np.ndarray:
+        frame = cap
+        success = True
+    else:
+        success, frame = cap.read()
     
     fframe=cv2.flip(frame,0)
     ffframe=cv2.flip(fframe,1)
