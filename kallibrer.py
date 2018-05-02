@@ -20,7 +20,7 @@ def onMouse(event, x, y, flags, param):
         clickcount = clickcount + 1
         corners.append((x,y))
    
-def kallibrer(cap,dest):        
+def kallibrer(cap,dest,newcameramtx,mtx,dist):        
     global ffframe
     global clickcount
     
@@ -29,9 +29,12 @@ def kallibrer(cap,dest):
         success = True
     else:
         success, frame = cap.read()
-    
-    fframe=cv2.flip(frame,0)
-    ffframe=cv2.flip(fframe,1)
+
+    frame = cv2.undistort(frame, mtx, dist, None, newcameramtx) 
+     
+    ffframe=frame   
+    #fframe=cv2.flip(frame,0)
+    #ffframe=cv2.flip(fframe,1)
 
 
     blurred = cv2.GaussianBlur(ffframe, (5, 5), 0)
@@ -58,10 +61,25 @@ def kallibrer(cap,dest):
 
 
     npacorners = np.array(corners,np.float32)
+    maskcorners = np.array(corners,dtype=np.int32)
+    #maskcorners = np.array([[542, 107], [562, 102], [582, 110], [598, 142], [600, 192], [601, 225], [592, 261], [572, 263], [551, 245], [526, 220], [520, 188], [518, 152], [525, 127], [524, 107]],dtype=np.int32)
+    
     transform = cv2.getPerspectiveTransform(npacorners,dest)
+    
+    mask = np.zeros((ffframe.shape[0], ffframe.shape[1]))
+
+    cv2.fillConvexPoly(mask, maskcorners,1)
+    mask = mask.astype(np.bool)
+    out = np.zeros_like(ffframe)
+    cv2.imshow('out before mask',out)
+    cv2.waitKey(100)
+    out[mask] = ffframe[mask] 
+    cv2.imshow('out after mask',out)
+    cv2.waitKey(100)
+    
     print "transform:"
     print transform
-    return transform
+    return [transform,mask,maskcorners,ffframe]
 
 
 

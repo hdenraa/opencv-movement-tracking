@@ -7,16 +7,21 @@ import random
 import os.path
 import pickle
 import cProfile
+import time
+import pyglet
 from kallibrer import kallibrer
-from findcircle import circleposition
+from findcircle_blob import circleposition
 from spriteclasses import Player,Block,Border,BLACK,WHITE,GREEN,RED,BLUE
 from puckmovement import puck_movement
+from random import randint
+import copy
 
 def main():
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
      
-
-
+    window = pyglet.window.Window()
+    cursor= window.get_system_mouse_cursor(window.CURSOR_CROSSHAIR)
+    window.set_mouse_cursor(cursor)
 
         
 
@@ -46,16 +51,30 @@ def main():
     bluehole = Border(BLUE, 20,117, 640,117)
     redhole = Border(RED, 20, 117, 640, 466)
 
+    targettl = Border(GREEN, 120, 120,265,115)
+    targetbl = Border(GREEN, 120, 120,265,415)
+    targettr = Border(GREEN, 120, 120,915,115)
+    targetbr = Border(GREEN, 120, 120,915,415)
+
+    targets = [targettl,targetbl,targettr,targetbr]
+    
     sprite_list = pygame.sprite.Group()
+    target_list = pygame.sprite.Group()
 
     sprite_list.add(player)
-
+    target = copy.copy(targets[randint(0,3)])
 
     sprite_list.add(redhole)
     sprite_list.add(bluehole)
     sprite_list.add(topborder)
     sprite_list.add(midborder)
     sprite_list.add(lowborder)
+    
+    sprite_list.add(target)
+
+    target_list.add(target)
+
+
     # -------- Main Program Loop -----------
 
     start_ticks=pygame.time.get_ticks()
@@ -65,16 +84,28 @@ def main():
     score=0
 
     dest = np.array([ [0,0],[1299,0],[1299,699],[0,699] ],np.float32)
-
-    warp = kallibrer(cap,dest)
+    
+    undistinfo = pickle.load(open("undistinfo.p","rb"))
+    mtx = undistinfo['mtx']
+    dist = undistinfo['dist']
+    ret, frame = cap.read()
+    h,  w = frame.shape[:2]
+    newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
+    
+    warp,mask,maskcorners,_ = kallibrer(cap,dest,newcameramtx,mtx,dist)
     dircount = 0
     hole = ""
-
+    print "am alive"
     myfont = pygame.font.SysFont("monospace", 30,True)
-
-    for puck in puck_movement(lambda:circleposition(cap,warp)):
-        print "puck_movement for"
         
+    time1 = time.clock()
+
+    x=0
+    for puck in puck_movement(lambda:circleposition(cap,warp,newcameramtx,mtx,dist,mask,maskcorners)):
+        time2 = time.clock()
+        print 'clocktime %0.6f' % (time2-time1)     
+        #time1=time2   
+        x+=1
         # Calls update() method on every sprite in the list
         sprite_list.update(puck[0][2][0],puck[0][2][1])
         if puck[1]:
@@ -89,11 +120,20 @@ def main():
             
         screen.fill(WHITE)
         sprite_list.draw(screen)
+        
+        target_hit_list = pygame.sprite.spritecollide(player, target_list, True,pygame.sprite.collide_rect)
+            #if blocks_hit_list is not None:
+        for target in target_hit_list:
+            print("HIT!!!!!")
+            target = copy.copy(targets[randint(0,3)])
+            sprite_list.add(target)
+            target_list.add(target)
+        
 
         # Draw all the spites
         #screen.blit(player.image,player.rect)
         # Limit to 20 frames per second
-        clock.tick(60)
+        #clock.tick(60)
      
         # Go ahead and update the screen with what we've drawn.
         
@@ -107,7 +147,9 @@ def main():
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-    
+        time1 = time.clock()
+        #if x>100:
+        #s    break
 #cProfile.run('main()')
 
 main()    

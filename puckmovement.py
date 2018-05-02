@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import time
 
 def unit_vector(vector):
     """ Returns the unit vector of the vector.  """
@@ -22,21 +23,24 @@ def angle_between(v1, v2):
 def puck_movement(circleposition):
     l = [[1,1],[1,1],[1,1]]
     for circle in circleposition():
+        time1 = time.clock()
         l.append(circle)
         l=l[1:]
         
-        u=[l[2][0]-l[1][0],l[2][1]-l[1][1]]
-        v=[l[1][0]-l[0][0],l[1][1]-l[0][1]]
-        print "vector u:",u
-        print "vector v:",v
-        a= angle_between(u,v)
-        if not math.isnan(a):
-            print "######## angle:",a
+        #u=[l[2][0]-l[1][0],l[2][1]-l[1][1]]
+        #v=[l[1][0]-l[0][0],l[1][1]-l[0][1]]
+        #print "vector u:",u
+        #print "vector v:",v
+        #a= angle_between(u,v)
+        #if not math.isnan(a):
+        #    print "######## angle:",a
         
-        if a > 0.5*np.pi and a < 1.5*np.pi:
-            dirchange= True
-        else:    
-            dirchange = False
-            
+        #if a > 0.5*np.pi and a < 1.5*np.pi:
+        #    dirchange= True
+        #else:    
+        dirchange = False
+        time2 = time.clock()
+        print 'puck_movement clocktime %0.6f' % (time2-time1)  
+    
         yield [l,dirchange]
         
