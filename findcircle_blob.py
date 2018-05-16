@@ -1,6 +1,7 @@
 import cv2
 import numpy as np 
 import time
+import copy
 
 def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
     thresh = 0
@@ -43,17 +44,24 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
         #print 'undistort %0.3f' % (time2-time1)
         #cv2.imshow('frame',frame)
         #cv2.waitKey(3000)
-        ffframe=frame
+        #ffframe=frame
         #fframe=cv2.flip(frame,0)
-        #ffframe=cv2.flip(fframe,1)
+        ffframe=cv2.flip(frame,-1)
         
+        print maskcorners,h,w
         ulx = max(maskcorners[0][0] -30,0) ##sorg for ikke at ryge udenfor billede
         uly = max(maskcorners[0][1] -30,0)
-        brx = min(maskcorners[2][0] + 30,h)
-        bry = min(maskcorners[2][1] + 30,w)
-        
-        frame = frame[uly:bry,ulx:brx]
-        ffframe=cv2.flip(frame,-1)
+        brx = min(maskcorners[2][0] + 30,w)
+        bry = min(maskcorners[2][1] + 30,h)
+        #cv2.imshow('before crop',ffframe)
+        #cv2.waitKey(3000)        
+        #cv2.circle(ffframe,(ulx,uly),10,(0,0,255),-1)
+        #cv2.circle(ffframe,(brx,bry),10,(0,0,255),-1)
+        #cv2.imshow('before crop with point',ffframe)
+        #cv2.waitKey(3000)    
+
+        ffframe = ffframe[uly:bry,ulx:brx]
+        #ffframe=cv2.flip(frame,-1)
         #cv2.imshow('cropped',ffframe)
         #cv2.waitKey(3000)
                
@@ -83,33 +91,12 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
         #print "keypoints" + str(keypoints)
         if len(keypoints) > 0: 
             keypoint = [keypoints[-1]]
-        else:
-            keypoint = None
-            
-        #print "keypoint" + str(keypoint)
-        if keypoint is not None:
-            #print keypoint[0].pt
             circle = keypoint[0].pt
-            #print "im alive"
-            #im_with_keypoints = cv2.drawKeypoints(ffframe, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-            #cv2.imshow("im_with_keypoints", im_with_keypoints)
-            #cv2.imshow("out", out)
-            
-            #cv2.waitKey(1)
-            #print "point diff"
-            #print np.absolute(circle[0]-l[2][0]) 
-            #print np.absolute(circle[1]-l[2][1])
-            #cv2.waitKey(3000)
-            #if (np.absolute(circle[0]-l[2][0]) > 12 or np.absolute(circle[1]-l[2][1]) > 12): ## and (np.absolute(circle[0]-l[2][0]) < 100 or np.absolute(circle[1]-l[2][1]) < 100):
             l.append([int(circle[0]),int(circle[1])])
             l=l[1:]
-            #else:
-            #    raise Exception("hej")
-        else:
-            print "else"
-            continue
+            
         
-        adpoint = l[2]
+        adpoint = copy.copy(l[2])
         adpoint[0]=adpoint[0]+ulx
         adpoint[1]=adpoint[1]+uly
         point = np.array([adpoint],dtype='float32')
@@ -124,11 +111,9 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
         pointUndist = np.array([[[pux,puy]]],dtype='float32')
         pointOut = cv2.perspectiveTransform(pointUndist, transform)   
 
-        [[[x,y]]]=point
         #[[[xu,yu]]]=pointUndist
         [[[xo,yo]]]=pointOut
         #yield [[x,y],[xo,yo],[xu,yu]]
-        
         time2 = time.clock()
         print 'findcircle clocktime %0.6f' % (time2-time1)  
 
