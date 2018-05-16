@@ -99,8 +99,9 @@ def main():
     myfont = pygame.font.SysFont("monospace", 30,True)
         
     time1 = time.clock()
-
+    start_ticks = pygame.time.get_ticks()
     x=0
+    hitcount=0
     for puck in puck_movement(lambda:circleposition(cap,warp,newcameramtx,mtx,dist,mask,maskcorners)):
         time2 = time.clock()
         print 'clocktime %0.6f' % (time2-time1)     
@@ -126,6 +127,7 @@ def main():
         for target in target_hit_list:
             print("HIT!!!!!")
             target = copy.copy(targets[randint(0,3)])
+            hitcount+=1
             sprite_list.add(target)
             target_list.add(target)
         
@@ -137,10 +139,11 @@ def main():
      
         # Go ahead and update the screen with what we've drawn.
         
-        Score = myfont.render("Count "+ str(dircount), 1, (0,50,0))
-        Hole = myfont.render("Hole "+ str(hole), 1, (0,50,0))
+        seconds=(pygame.time.get_ticks()-start_ticks)/1000
+        Time = myfont.render("Time "+ str(30-seconds), 1, (0,50,0))
+        Hole = myfont.render("Hit count "+ str(hitcount), 1, (0,50,0))
                 
-        screen.blit(Score,(10,10))
+        screen.blit(Time,(10,10))
         screen.blit(Hole,(10,30))
         
         pygame.display.flip()

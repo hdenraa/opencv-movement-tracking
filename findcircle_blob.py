@@ -47,12 +47,13 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
         #fframe=cv2.flip(frame,0)
         #ffframe=cv2.flip(fframe,1)
         
-        ulx = maskcorners[0][0] -60 ##sorg for ikke at ryge udenfor billede
-        uly = maskcorners[0][1] -60
-        brx = maskcorners[2][0] + 60
-        bry = maskcorners[2][1] + 60
+        ulx = max(maskcorners[0][0] -30,0) ##sorg for ikke at ryge udenfor billede
+        uly = max(maskcorners[0][1] -30,0)
+        brx = min(maskcorners[2][0] + 30,h)
+        bry = min(maskcorners[2][1] + 30,w)
         
-        ffframe = ffframe[uly:bry,ulx:brx]
+        frame = frame[uly:bry,ulx:brx]
+        ffframe=cv2.flip(frame,-1)
         #cv2.imshow('cropped',ffframe)
         #cv2.waitKey(3000)
                
@@ -95,10 +96,11 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
             #cv2.imshow("out", out)
             
             #cv2.waitKey(1)
-            print "point diff"
-            print np.absolute(circle[0]-l[2][0]) 
-            print np.absolute(circle[1]-l[2][1])
-            #if (np.absolute(c) > 12 or np.absolute(circle[1]-l[2][1]) > 12): ## and (np.absolute(circle[0]-l[2][0]) < 100 or np.absolute(circle[1]-l[2][1]) < 100):
+            #print "point diff"
+            #print np.absolute(circle[0]-l[2][0]) 
+            #print np.absolute(circle[1]-l[2][1])
+            #cv2.waitKey(3000)
+            #if (np.absolute(circle[0]-l[2][0]) > 12 or np.absolute(circle[1]-l[2][1]) > 12): ## and (np.absolute(circle[0]-l[2][0]) < 100 or np.absolute(circle[1]-l[2][1]) < 100):
             l.append([int(circle[0]),int(circle[1])])
             l=l[1:]
             #else:
