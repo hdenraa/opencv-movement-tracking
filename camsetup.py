@@ -1,7 +1,7 @@
 import cv2
 import cv2.cv as cv
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 cv2.namedWindow('frame',cv2.WINDOW_NORMAL)
 cv2.resizeWindow('frame', 1200,800)

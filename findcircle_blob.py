@@ -39,7 +39,7 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
         time1 = time.clock()
         ret, frame = cap.read()
         #time1 = time.clock()
-        #frame = cv2.undistort(frame, mtx, dist, None, newcameramtx)
+        frame = cv2.undistort(frame, mtx, dist, None, newcameramtx)
         #time2 = time.clock()
         #print 'undistort %0.3f' % (time2-time1)
         #cv2.imshow('frame',frame)
@@ -49,10 +49,14 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
         ffframe=cv2.flip(frame,-1)
         
         print maskcorners,h,w
-        ulx = max(maskcorners[0][0] -30,0) ##sorg for ikke at ryge udenfor billede
-        uly = max(maskcorners[0][1] -30,0)
-        brx = min(maskcorners[2][0] + 30,w)
-        bry = min(maskcorners[2][1] + 30,h)
+        #ulx = max(maskcorners[0][0] -30,0) ##sorg for ikke at ryge udenfor billede
+        #uly = max(maskcorners[0][1] -30,0)
+        #brx = min(maskcorners[2][0] + 30,w)
+        #bry = min(maskcorners[2][1] + 30,h)
+        ulx = maskcorners[0][0] 
+        uly = maskcorners[0][1] 
+        brx = maskcorners[2][0] 
+        bry = maskcorners[2][1] 
         #cv2.imshow('before crop',ffframe)
         #cv2.waitKey(3000)        
         #cv2.circle(ffframe,(ulx,uly),10,(0,0,255),-1)
@@ -60,7 +64,7 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
         #cv2.imshow('before crop with point',ffframe)
         #cv2.waitKey(3000)    
 
-        ffframe = ffframe[uly:bry,ulx:brx]
+        #ffframe = ffframe[uly:bry,ulx:brx]
         #ffframe=cv2.flip(frame,-1)
         #cv2.imshow('cropped',ffframe)
         #cv2.waitKey(3000)
@@ -97,19 +101,19 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
             
         
         adpoint = copy.copy(l[2])
-        adpoint[0]=adpoint[0]+ulx
-        adpoint[1]=adpoint[1]+uly
+        #adpoint[0]=adpoint[0]+ulx
+        #adpoint[1]=adpoint[1]+uly
         point = np.array([adpoint],dtype='float32')
         point = np.array([point])
         #time1 = time.clock()
-        pointUndist = cv2.undistortPoints(point, mtx, dist, None, newcameramtx)
+        #pointUndist = cv2.undistortPoints(point, mtx, dist, None, newcameramtx)
         #time2= time.clock()
         #print 'undistortPoints %0.3f' % (time2-time1)
-        [[[pux,puy]]] = pointUndist
+        #[[[pux,puy]]] = pointUndist
         #pux=w-pux
         #puy=h-puy
-        pointUndist = np.array([[[pux,puy]]],dtype='float32')
-        pointOut = cv2.perspectiveTransform(pointUndist, transform)   
+        #pointUndist = np.array([[[pux,puy]]],dtype='float32')
+        pointOut = cv2.perspectiveTransform(point, transform)   
 
         #[[[xu,yu]]]=pointUndist
         [[[xo,yo]]]=pointOut
@@ -117,5 +121,5 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
         time2 = time.clock()
         print 'findcircle clocktime %0.6f' % (time2-time1)  
 
-        yield [xo,yo]
+        yield adpoint #[xo,yo]
         
