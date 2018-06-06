@@ -17,8 +17,8 @@ from random import randint
 import copy
 
 def main():
-    cap = cv2.VideoCapture(0)
-     
+    #cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture("/home/lars/Videos/Webcam/2017-12-20-223500.webm")
     window = pyglet.window.Window()
     cursor= window.get_system_mouse_cursor(window.CURSOR_CROSSHAIR)
     window.set_mouse_cursor(cursor)
@@ -91,7 +91,7 @@ def main():
     ret, frame = cap.read()
     h,  w = frame.shape[:2]
     newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
-    
+    print "foer kallibrer"
     warp,mask,maskcorners,_ = kallibrer(cap,dest,newcameramtx,mtx,dist)
     dircount = 0
     hole = ""
@@ -152,6 +152,7 @@ def main():
         #s    break
 #cProfile.run('main()')
 
-main()    
-    
+main()
+
+#while not    
 pygame.quit()

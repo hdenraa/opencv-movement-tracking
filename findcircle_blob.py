@@ -37,6 +37,9 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
     while True:
         time1 = time.clock()
         ret, frame = cap.read()
+        if frame is None:
+            return
+            
         #time1 = time.clock()
         #frame = cv2.undistort(frame, mtx, dist, None, newcameramtx)
         #time2 = time.clock()
