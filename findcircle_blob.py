@@ -30,15 +30,18 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
     #params.filterByInertia = True
     #params.minInertiaRatio = 0.01     
     ret, frame = cap.read()
-    detector = cv2.SimpleBlobDetector(params)
+    detector = cv2.SimpleBlobDetector_create(params)
     h,  w = frame.shape[:2]
     done = False
     l=[[1,1],[1,1],[1,1]]
     while True:
         time1 = time.clock()
         ret, frame = cap.read()
+        if frame is None:
+            return
+            
         #time1 = time.clock()
-        #frame = cv2.undistort(frame, mtx, dist, None, newcameramtx)
+        frame = cv2.undistort(frame, mtx, dist, None, newcameramtx)
         #time2 = time.clock()
         #print 'undistort %0.3f' % (time2-time1)
         #cv2.imshow('frame',frame)
@@ -47,12 +50,12 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
         #fframe=cv2.flip(frame,0)
         #ffframe=cv2.flip(fframe,1)
         
-        ulx = maskcorners[0][0] -60 ##sorg for ikke at ryge udenfor billede
-        uly = maskcorners[0][1] -60
-        brx = maskcorners[2][0] + 60
-        bry = maskcorners[2][1] + 60
+        ulx = maskcorners[0][0] #-60 ##sorg for ikke at ryge udenfor billede
+        uly = maskcorners[0][1] #-60
+        brx = maskcorners[2][0] #+ 60
+        bry = maskcorners[2][1] #+ 60
         
-        ffframe = ffframe[uly:bry,ulx:brx]
+        #ffframe = ffframe[uly:bry,ulx:brx]
         #cv2.imshow('cropped',ffframe)
         #cv2.waitKey(3000)
                
@@ -78,7 +81,7 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
         dtime1 = time.clock()
         keypoints = detector.detect(out)
         dtime2 = time.clock()
-        print 'detector %0.6f' % (dtime2-dtime1)
+        print('detector %0.6f' % (dtime2-dtime1))
         #print "keypoints" + str(keypoints)
         if len(keypoints) > 0: 
             keypoint = [keypoints[-1]]
@@ -90,33 +93,33 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
             #print keypoint[0].pt
             circle = keypoint[0].pt
             #print "im alive"
-            #im_with_keypoints = cv2.drawKeypoints(ffframe, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-            #cv2.imshow("im_with_keypoints", im_with_keypoints)
+            im_with_keypoints = cv2.drawKeypoints(ffframe, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+            cv2.imshow("im_with_keypoints", im_with_keypoints)
             #cv2.imshow("out", out)
             
             #cv2.waitKey(1)
-            print "point diff"
-            print np.absolute(circle[0]-l[2][0]) 
-            print np.absolute(circle[1]-l[2][1])
+            print("point diff")
+            print(np.absolute(circle[0]-l[2][0])) 
+            print(np.absolute(circle[1]-l[2][1]))
             #if (np.absolute(c) > 12 or np.absolute(circle[1]-l[2][1]) > 12): ## and (np.absolute(circle[0]-l[2][0]) < 100 or np.absolute(circle[1]-l[2][1]) < 100):
             l.append([int(circle[0]),int(circle[1])])
             l=l[1:]
             #else:
             #    raise Exception("hej")
         else:
-            print "else"
+            print("else")
             continue
         
         adpoint = l[2]
-        adpoint[0]=adpoint[0]+ulx
-        adpoint[1]=adpoint[1]+uly
+        #adpoint[0]=adpoint[0]+ulx
+        #adpoint[1]=adpoint[1]+uly
         point = np.array([adpoint],dtype='float32')
         point = np.array([point])
         #time1 = time.clock()
-        pointUndist = cv2.undistortPoints(point, mtx, dist, None, newcameramtx)
+        #pointUndist = cv2.undistortPoints(point, mtx, dist, None, newcameramtx)
         #time2= time.clock()
         #print 'undistortPoints %0.3f' % (time2-time1)
-        [[[pux,puy]]] = pointUndist
+        [[[pux,puy]]] = point #Undist
         #pux=w-pux
         #puy=h-puy
         pointUndist = np.array([[[pux,puy]]],dtype='float32')
@@ -128,7 +131,7 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
         #yield [[x,y],[xo,yo],[xu,yu]]
         
         time2 = time.clock()
-        print 'findcircle clocktime %0.6f' % (time2-time1)  
+        print('findcircle clocktime %0.6f' % (time2-time1))
 
         yield [xo,yo]
         

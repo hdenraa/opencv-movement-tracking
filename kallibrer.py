@@ -12,9 +12,9 @@ def onMouse(event, x, y, flags, param):
     global ffframe
     global clickcount
     global corners
-    print "MOUSE" + str(x) + " " + str(y) + " " + str(cv2.cv.CV_EVENT_LBUTTONUP) + " " + str(event)
-    if event == cv2.cv.CV_EVENT_LBUTTONUP:
-        print "mouse"
+    print("MOUSE" + str(x) + " " + str(y) + " " + str(cv2.EVENT_LBUTTONUP) + " " + str(event))
+    if event == cv2.EVENT_LBUTTONUP:
+        print("mouse")
         cv2.circle(ffframe,(x,y),10,(0,0,255),-1)
         clicked = True
         clickcount = clickcount + 1
@@ -29,6 +29,8 @@ def kallibrer(cap,dest,newcameramtx,mtx,dist):
         success = True
     else:
         success, frame = cap.read()
+        success, frame = cap.read()
+        
 
     frame = cv2.undistort(frame, mtx, dist, None, newcameramtx) 
      
@@ -77,8 +79,8 @@ def kallibrer(cap,dest,newcameramtx,mtx,dist):
     cv2.imshow('out after mask',out)
     cv2.waitKey(100)
     
-    print "transform:"
-    print transform
+    print("transform:")
+    print(transform)
     return [transform,mask,maskcorners,ffframe]
 
 

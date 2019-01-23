@@ -1,5 +1,5 @@
 import cv2
-import cv2.cv as cv
+#import cv2.cv as cv
 import numpy as np
 import pygame
 import math
@@ -8,7 +8,7 @@ import os.path
 import pickle
 import cProfile
 import time
-import pyglet
+#import pyglet
 from kallibrer import kallibrer
 from findcircle_blob import circleposition
 from spriteclasses import Player,Block,Border,BLACK,WHITE,GREEN,RED,BLUE
@@ -16,12 +16,62 @@ from puckmovement import puck_movement
 from random import randint
 import copy
 
+def startscreen(highscore_list):
+
+    global screen
+    started = False
+    
+    block_list = pygame.sprite.Group()
+    all_sprites_list = pygame.sprite.Group()
+    
+
+    all_sprites_list.add(player)
+    startBlock = Block(GREEN, 60, 60)
+    all_sprites_list.add(startBlock)
+    startBlock.rect.x = 630
+    startBlock.rect.y = 320
+    block_list.add(startBlock)
+    all_sprites_list.draw(screen)
+    
+
+    while not started:
+        for puck in puck_movement():
+            
+            player.update(puck[0],puck[1])
+            
+            all_sprites_list.draw(screen)     
+            if len(highscore_list) == 0:
+                Score = myfont.render("Score to beat:0",1, (0,50,0))
+            else:
+                Score = myfont.render("Score to beat set by "+highscore_list[0].keys()[0]+": "+str(highscore_list[0].values()[0]), 1, (0,50,0))
+            
+            screen.blit(Score,(10,10))
+            # See if the player block has collided with anything.
+            clock.tick(20)
+            pygame.display.flip()
+            blocks_hit_list = pygame.sprite.spritecollide(player, block_list, False,pygame.sprite.collide_rect)
+            #if blocks_hit_list is not None:
+            for block in blocks_hit_list:
+                print("HIT!!!!!")
+                started = True
+                return
+
+def resultscreen(hitcount):
+
+    global screen
+    
+    screen.init
+    
+    Score = myfont.render("Number of hits "+hitcount, 1, (0,50,0))
+            
+    screen.blit(Score,(10,10))
+    
 def main():
-    cap = cv2.VideoCapture(0)
-     
-    window = pyglet.window.Window()
-    cursor= window.get_system_mouse_cursor(window.CURSOR_CROSSHAIR)
-    window.set_mouse_cursor(cursor)
+    cap = cv2.VideoCapture(1)
+    #cap = cv2.VideoCapture("/home/lars/dev/Videos/Webcam/2017-12-20-223500.webm")
+    #window = pyglet.window.Window()
+    #cursor= window.get_system_mouse_cursor(window.CURSOR_CROSSHAIR)
+    #window.set_mouse_cursor(cursor)
 
         
 
@@ -85,17 +135,17 @@ def main():
 
     dest = np.array([ [0,0],[1299,0],[1299,699],[0,699] ],np.float32)
     
-    undistinfo = pickle.load(open("undistinfo.p","rb"))
+    undistinfo = pickle.load(open("undistinfo.p","rb"),fix_imports=True,encoding='latin1')
     mtx = undistinfo['mtx']
     dist = undistinfo['dist']
     ret, frame = cap.read()
     h,  w = frame.shape[:2]
     newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
-    
+    print("foer kallibrer")
     warp,mask,maskcorners,_ = kallibrer(cap,dest,newcameramtx,mtx,dist)
-    dircount = 0
+    hitcount = 0
     hole = ""
-    print "am alive"
+    print("am alive")
     myfont = pygame.font.SysFont("monospace", 30,True)
         
     time1 = time.clock()
@@ -103,13 +153,13 @@ def main():
     x=0
     for puck in puck_movement(lambda:circleposition(cap,warp,newcameramtx,mtx,dist,mask,maskcorners)):
         time2 = time.clock()
-        print 'clocktime %0.6f' % (time2-time1)     
+        #print('clocktime %0.6f' % (time2-time1))     
         #time1=time2   
         x+=1
         # Calls update() method on every sprite in the list
         sprite_list.update(puck[0][2][0],puck[0][2][1])
-        if puck[1]:
-            dircount = dircount + 1
+        #if puck[1]:
+        #    dircount = dircount + 1
 
         if (puck[0][2][0] > 660 and puck[0][1][0] < 640) or (puck[0][2][0] < 640 and puck[0][1][0] > 660):
             if puck[0][2][1] > 350:
@@ -125,7 +175,10 @@ def main():
             #if blocks_hit_list is not None:
         for target in target_hit_list:
             print("HIT!!!!!")
-            target = copy.copy(targets[randint(0,3)])
+            hitcount += 1
+            #randint(0,3)
+            ctargets = [x for x in copy.copy(targets) if not x.rect.x == target.rect.x or not x.rect.y == target.rect.y]
+            target = ctargets[randint(0,2)]
             sprite_list.add(target)
             target_list.add(target)
         
@@ -133,25 +186,35 @@ def main():
         # Draw all the spites
         #screen.blit(player.image,player.rect)
         # Limit to 20 frames per second
-        #clock.tick(60)
+        clock.tick(30)
      
         # Go ahead and update the screen with what we've drawn.
+        #timelimit = 100
+        #timecount = timelimit - round(time2 - time1)
         
-        Score = myfont.render("Count "+ str(dircount), 1, (0,50,0))
+        #Timecount = myfont.render("time "+ str(timecount), 1, (0,50,0))
+        Score = myfont.render("Count "+ str(hitcount), 1, (0,50,0))
         Hole = myfont.render("Hole "+ str(hole), 1, (0,50,0))
-                
-        screen.blit(Score,(10,10))
-        screen.blit(Hole,(10,30))
+        
+        #screen.blit(Timecount,(10,10))        
+        screen.blit(Score,(10,30))
+        screen.blit(Hole,(10,50))
         
         pygame.display.flip()
         
+        #if timelimit <= 0:
+        #    return hitcount
+        
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-        time1 = time.clock()
+        # = time.clock()
         #if x>100:
         #s    break
 #cProfile.run('main()')
 
-main()    
-    
+while True:
+	main()
+	resultscreen(hitcount)
+
+#while not    
 pygame.quit()

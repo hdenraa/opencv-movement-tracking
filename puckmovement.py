@@ -40,7 +40,7 @@ def puck_movement(circleposition):
         #else:    
         dirchange = False
         time2 = time.clock()
-        print 'puck_movement clocktime %0.6f' % (time2-time1)  
+        print('puck_movement clocktime %0.6f' % (time2-time1))
     
         yield [l,dirchange]
         
