@@ -43,7 +43,7 @@ def circleposition(cap,transform,newcameramtx,mtx,dist,mask,maskcorners):
             return
             
         frame = cv2.undistort(frame, mtx, dist, None, newcameramtx)
-        ffframe=frame
+        ffframe=cv2.flip(frame,-1)
         
         ulx = maskcorners[0][0] -20 ##sorg for ikke at ryge udenfor billede
         uly = maskcorners[0][1] -20

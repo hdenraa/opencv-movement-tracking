@@ -112,3 +112,4 @@ class Player(pygame.sprite.Sprite):
         # Set the player object to the mouse location
         self.rect.x = puckx - 15
         self.rect.y = pucky - 15
+        return self

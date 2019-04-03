@@ -34,9 +34,9 @@ def kallibrer(cap,dest,newcameramtx,mtx,dist):
 
     frame = cv2.undistort(frame, mtx, dist, None, newcameramtx) 
      
-    ffframe=frame   
+    #ffframe=frame   
     #fframe=cv2.flip(frame,0)
-    #ffframe=cv2.flip(fframe,1)
+    ffframe=cv2.flip(frame,-1)
 
 
     blurred = cv2.GaussianBlur(ffframe, (5, 5), 0)
