@@ -15,6 +15,7 @@ from spriteclasses  import Player,Block,Border,BLACK,WHITE,GREEN,RED,BLUE
 from puckmovement  import puck_movement
 from random import randint
 import copy
+import highscore
 
 
 def startscreen(highscore_list):
@@ -76,8 +77,8 @@ myfont = False
 
     
 def main():
-    #cap = cv2.VideoCapture(1)
-    cap = cv2.VideoCapture("/home/lars/dev/Videos/Webcam/2017-12-20-223500.webm")
+    cap = cv2.VideoCapture(1)
+    #cap = cv2.VideoCapture("/home/lars/dev/Videos/Webcam/2017-12-20-223500.webm")
     #window = pyglet.window.Window()
     #cursor= window.get_system_mouse_cursor(window.CURSOR_CROSSHAIR)
     #window.set_mouse_cursor(cursor)
@@ -222,30 +223,33 @@ def main():
         
         player_list.draw(screen)
             
-        if len(missing_pucks) > 0:
-            press=True
+        # ~ if len(missing_pucks) > 0:
+            # ~ press=True
             
-            while press:
-                for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN:
-                        press = False
-                        # ~ if event.key == pygame.K_q:
-                            # ~ pygame.quit()
+            # ~ while press:
+                # ~ for event in pygame.event.get():
+                    # ~ if event.type == pygame.KEYDOWN:
+                        # ~ press = False
+                        #if event.key == pygame.K_q:
+                         #   pygame.quit()
                 
         
-        target_hit_list = pygame.sprite.groupcollide(player_list, target_list, True,True,pygame.sprite.collide_rect)
+        target_hit_list = pygame.sprite.groupcollide(player_list, target_list, False,True,pygame.sprite.collide_rect)
         #target_hit_list = pygame.sprite.spritecollide(player, target_list, True,pygame.sprite.collide_rect)
             #if blocks_hit_list is not None:
-        for target in target_hit_list:
-            print("HIT!!!!!")
-            raise Exception('Hit')
-            hitcount += 1
-            #randint(0,3)
-            ctargets = [x for x in copy.copy(targets) if not x.rect.x == target.rect.x or not x.rect.y == target.rect.y]
-            target = ctargets[randint(0,2)]
-            sprite_list.add(target)
-            target_list.add(target)
-        
+        for extrapuck in target_hit_list:
+            if len(target_hit_list[extrapuck]) > 0:
+                target = target_hit_list[extrapuck][0]
+                print("HIT!!!!!")
+                #raise Exception('Hit')
+                hitcount += 1
+                #randint(0,3)
+                ctargets = [x for x in copy.copy(targets) if not x.rect.x == target.rect.x or not x.rect.y == target.rect.y]
+                target = ctargets[randint(0,2)]
+                sprite_list.add(target)
+                target_list.add(target)
+                break
+            
 
         # Draw all the spites
         #screen.blit(player.image,player.rect)
@@ -257,7 +261,7 @@ def main():
         #timecount = timelimit - round(time2 - time1)
         
         #Timecount = myfont.render("time "+ str(timecount), 1, (0,50,0))
-        countdown=int(10-(loop_ticks-start_ticks)/1000)
+        countdown=int(2-(loop_ticks-start_ticks)/1000)
         gametime = myfont.render('clocktime %s' % str(countdown), 1, (0,50,0))
         Score = myfont.render("Count "+ str(hitcount), 1, (0,50,0))
         Hole = myfont.render("Hole "+ str(hole), 1, (0,50,0))
@@ -270,8 +274,8 @@ def main():
         fullscreen.blit(gameoutput,(0,0))
         fullscreen.blit(screen,(0,55))
         
-        #if countdown < 0:
-        #    return hitcount,fullscreen
+        if countdown < 0:
+            return hitcount,fullscreen
         
         pygame.display.flip()
         
@@ -288,12 +292,15 @@ def main():
 #cProfile.run('main()')
 
 
-#hitcount,screen = main()
-main()
+hitcount,screen = main()
 
-#resultscreen(hitcount,screen)
+resultscreen(hitcount,screen)
+
+fullscreen = pygame.display.set_mode([100, 100])
  
+highscore = highscore.highscore('highscore.txt')
+highscore.check(1000)
 
 time.sleep(10)
-
+cap.release()
 pygame.quit()

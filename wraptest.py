@@ -67,7 +67,7 @@ def resultscreen(hitcount):
     screen.blit(Score,(10,10))
     
 def main():
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     #cap = cv2.VideoCapture("/home/lars/dev/Videos/Webcam/2017-12-20-223500.webm")
     #window = pyglet.window.Window()
     #cursor= window.get_system_mouse_cursor(window.CURSOR_CROSSHAIR)
