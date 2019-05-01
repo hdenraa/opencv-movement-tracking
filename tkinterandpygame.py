@@ -14,7 +14,7 @@ buttonwin = Frame(root) #width = 75, height = 500)
 buttonwin.grid(row=0,column=0, sticky='news')
 def hide():
     embed.tkraise()
-    embed.pack()
+    embed.pack(expand=1)
     root.update()
     # ~ time.sleep(3)
     # ~ buttonwin.tkraise()
