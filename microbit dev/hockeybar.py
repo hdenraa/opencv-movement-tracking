@@ -1,6 +1,6 @@
 import time
 import utime
-import random 
+import random
 import microbit
 from microbit import *
 
@@ -27,17 +27,17 @@ def initleds():
 
         for _ in range(8):
             spi.write(bytearray([command, data]))
-            
+
         cs.write_digital(0)
         cs.write_digital(1)
-      
-def playintro():  
+
+def playintro():
     for x in range(10):
         if (x % 2)==0:
             data=0b11111111
         else:
             data=0b00000000
-        
+
         for y in range(8):
             for _ in range(i):
                 spi.write(bytearray([1+y, data]))
@@ -46,7 +46,7 @@ def playintro():
 
         sleep(200)
 
-def showscore(score):  
+def showscore(score):
     rows = score // 8
     rest = score % 8
     for y in range(8):
@@ -58,20 +58,25 @@ def showscore(score):
                 for _ in range(rest-1):
                     data = data << 1
                     data += 1
-                    
+
                 spi.write(bytearray([1+y,data]))
             else:
                 spi.write(bytearray([1+y,0b00000000]))
-                
+
         cs.write_digital(0)
         cs.write_digital(1)
 
-        
+
 def settarget(lasttarget=None):
     targetlist=[1,2,3,4,5]
     if lasttarget is not None:
         targetlist.remove(lasttarget)
-    target=random.choice(targetlist)
+    # target=random.choice(targetlist)
+    if (lasttarget is None) or (lasttarget == 5):
+        target = 1
+    else:
+        target = lasttarget + 1
+    microbit.display.scroll(str(target), wait=False, loop=True)
     for y in range(8):
         for d in range(i):
             if d+1 == target:
@@ -81,7 +86,7 @@ def settarget(lasttarget=None):
         cs.write_digital(0)
         cs.write_digital(1)
     return target
-    
+
 def dimmtarget(target,brigtness):
     for y in range(8):
         if y+1 == target:
@@ -93,7 +98,7 @@ def dimmtarget(target,brigtness):
 
 def startgame():
     while True:
-        if not bb1.read_digital() or not bb2.read_digital() or not bb3.read_digital() or not bb4.read_digital()  or not bb5.read_digital():  
+        if not bb1.read_digital() or not bb2.read_digital() or not bb3.read_digital() or not bb4.read_digital()  or not bb5.read_digital():
             gamestate = "started"
             target = settarget()
             startticks = utime.ticks_ms()
@@ -120,10 +125,14 @@ while not gamestate == "finished":
         gamestate,target,startticks = startgame()
 
     elif gamestate == "started":
-        if target == 1 and not bb1.read_digital() or target == 2 and not bb2.read_digital() or target == 3 and not bb3.read_digital() or target == 4 and not bb4.read_digital() or target == 5 and not bb5.read_digital():
+        if (target == 1 and not bb1.read_digital()) \
+        or (target == 2 and not bb2.read_digital()) \
+        or (target == 3 and not bb3.read_digital()) \
+        or (target == 4 and not bb4.read_digital()) \
+        or (target == 5 and not bb5.read_digital()):
             target = settarget(target)
             hitcount += 1
-    
+
     currentticks = utime.ticks_ms()
     if currentb > 0 and utime.ticks_diff(currentticks,lastticks) >= 500:
         #currentb = dimmtarget(target,currentb)
@@ -131,11 +140,8 @@ while not gamestate == "finished":
     elif currentb == 0:
         target = settarget(target)
         currentb = 15
-        
+
     if utime.ticks_diff(utime.ticks_ms(),startticks) >= 30000:
         gamestate = "finished"
         showscore(hitcount)
         microbit.display.scroll(gamestate, wait=False, loop=True)
-           
-
-
