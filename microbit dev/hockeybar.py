@@ -97,12 +97,24 @@ def dimmtarget(target,brigtness):
     return brigtness
 
 def startgame():
+    lasttarget = None
     while True:
-        if not bb1.read_digital() or not bb2.read_digital() or not bb3.read_digital() or not bb4.read_digital()  or not bb5.read_digital():
+        if not bb1.read_digital():
+            lasttarget = 1
+        if not bb2.read_digital():
+            lasttarget = 2
+        if not bb3.read_digital():
+            lasttarget = 3
+        if not bb4.read_digital():
+            lasttarget = 4
+        if not bb5.read_digital():
+            lasttarget = 5
+        if not lasttarget is None:
             gamestate = "started"
-            target = settarget()
+            target = settarget(lasttarget)
             startticks = utime.ticks_ms()
             return gamestate,target,startticks
+
 
 
 gamestatde="ready"
@@ -116,15 +128,12 @@ gamestate,target,startticks = startgame()
 
 lastticks = startticks
 
-microbit.display.scroll(gamestate, wait=False, loop=True)
+# microbit.display.scroll(gamestate, wait=False, loop=True)
 
 currentb = 15
 
 while not gamestate == "finished":
-    if gamestate == "ready":
-        gamestate,target,startticks = startgame()
-
-    elif gamestate == "started":
+    if gamestate == "started":
         if (target == 1 and not bb1.read_digital()) \
         or (target == 2 and not bb2.read_digital()) \
         or (target == 3 and not bb3.read_digital()) \
